@@ -5,33 +5,35 @@ import os
 import json
 import csv
 
-parser = argparse.ArgumentParser(description='Process VictiScout data.')
+parser = argparse.ArgumentParser(description='Process XScout data.')
 parser.add_argument('command', type=str, help='What you want to do.')
 
 args = parser.parse_args()
 
 if args.command.startswith('cons'):
     files = ['%s/%s' % (os.getcwd(), f) for f in os.listdir(os.getcwd()) if f.endswith('.json')]
-    dest = '%s/data.json' % os.getcwd()
+    dest = '%s/output.json' % os.getcwd()
     if len(files):
         matches = []
 
         for f in files:
-            matches += json.loads(open(f).read())
-            os.remove(f)
+            with open(f) as file:
+                matches += json.loads(file.read())
+            # os.remove(f)
 
         open(dest, 'w').write(json.dumps(matches))
         print('All data moved into %s successfully.' % dest)
     else:
         print('Error: No valid scouting JSON in the current directory.')
+
 elif args.command == 'csv' or args.command == 'ss' or args.command == 'spreadsheet':
-    if os.path.exists('%s/data.json' % os.getcwd()):
+    if os.path.exists('%s/output.json' % os.getcwd()):
         try:
-            os.remove('%s/data.csv' % os.getcwd())
+            os.remove('%s/xscout.csv' % os.getcwd())
         except OSError:
             pass
-        matches = json.loads(open('data.json').read())
-        dest = csv.writer(open('data.csv', 'w+', newline=''))
+        matches = json.loads(open('output.json').read())
+        dest = csv.writer(open('xscout.csv', 'w+', newline=''))
 
         # Write header
         dest.writerow([k for k in matches[0].keys()])
